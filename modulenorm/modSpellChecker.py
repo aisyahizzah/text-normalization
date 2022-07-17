@@ -3,20 +3,36 @@ from collections import Counter
 
 def words(text): return re.findall(r'\w+', text.lower())
 
-WORDS = Counter(words(open('resources\\spellcheck.txt').read()))
+WORDS = Counter(words(open('../resources/kata-dasar-indonesia.txt').read()))
 # WORDS = Counter(words(open('..\\resources\\spellcheck.txt').read()))
 
 def P(word, N=sum(WORDS.values())): 
     # "Probability of `word`."
     return WORDS[word] / N
 
+def M(pair_words): 
+    # "Num of match char."
+    word, WORD = pair_words[0], pair_words[1]
+    count = 0
+    for c in word:
+      if c in WORD:
+        count += 1 
+    return count / len(word)
+
 def correction(word): 
     # "Most probable spelling correction for word."
-    return max(candidates(word), key=P)
+    if candidates(word) == word:
+      return max(compare(word), key=M)[1]
+    else:
+      return max(candidates(word), key=P)
 
 def candidates(word): 
     # "Generate possible spelling corrections for word."
-    return (known([word]) or known(edits1(word)) or known(edits2(word)) or [word])
+    return (known([word]) or known(edits1(word)) or known(edits2(word)) or word)
+
+def compare(word): 
+    # "Generate possible spelling corrections for word."
+    return [[word, w] for w in WORDS]
 
 def known(words): 
     # "The subset of `words` that appear in the dictionary of WORDS."
